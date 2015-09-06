@@ -88,7 +88,7 @@
 
 #include "application.h"
 #include "EmonLib.h"
-
+#define CORE
 // set up an instance of EnergyMonitor Class from SemonLib
 EnergyMonitor emon1;
 
@@ -153,7 +153,9 @@ void setup() {
     udp.begin(localPort);
     portRead = millis(); //when port was last read
     previousPoll = portRead;
+#ifdef PHOTON
     setADCSampleTime(ADC_SampleTime_112Cycles);//explore effect 480= 50pts per half cycle
+#endif
     //Spark.variable("input", &input, STRING);
     //Spark.variable("results", &output, STRING);
 
