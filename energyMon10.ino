@@ -88,7 +88,7 @@
 
 #include "application.h"
 #include "EmonLib.h"
-#define CORE
+
 // set up an instance of EnergyMonitor Class from SemonLib
 EnergyMonitor emon1;
 
@@ -153,7 +153,9 @@ void setup() {
     udp.begin(localPort);
     portRead = millis(); //when port was last read
     previousPoll = portRead;
-#ifdef PHOTON
+
+//check for Photon
+#if PLATFORM_ID==6
     setADCSampleTime(ADC_SampleTime_112Cycles);//explore effect 480= 50pts per half cycle
 #endif
     //Spark.variable("input", &input, STRING);
@@ -254,12 +256,15 @@ void loop() {
         digitalWrite(ledPin, LOW); //set high by meter flash
 
         // we have finished calculating powers so put into a string for the UDP packet
+/* **************************** This was a work around bad sprinff() ***********
         sprintf(UDPoutData, "%s %s %s %s %s %s %s %s %4d \n", \
           String(timeSinceLastRequest/1000.0,2).c_str(), String(emon1.Vrms,2).c_str(),String( emon1.Irms,2).c_str(),  \
           String(emon1.realPower/1000.0,2).c_str(), String(emon1.powerFactor,2).c_str(), String(powerGas,2).c_str(), \
           String(powerGen,2).c_str(), String(powerExp,2).c_str(),emon1.crossCount);
-
-        //sprintf(UDPoutData, "%6.1f, %10u, %4d,  %4d \n", (float)(timeSinceLastRequest/1000.0), timeSinceLastRequest,  packetSize, sizeof(UDPoutData));
+*/
+        sprintf(UDPoutData, "%.2f %4d %4d %.2f %.2f %.2f %.2f %.2f %4d \n", timeSinceLastRequest/1000.0, \
+        emon1.Vrms, emon1.Irms, emon1.realPower/1000.0, emon1.powerFactor, powerGas, \
+        powerGen,  powerExp, emon1.crossCount);
         //and add the waveform arrays to the string
         for (int i = 0; i<256; i++){
              UDPoutData[256+i]=emon1.Vwaveform[(emon1.numberOfSamples+i+1)%256];
